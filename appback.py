@@ -10,7 +10,7 @@ from tika import language
 #f_in_tika = 'escritura.pdf'
 #f_out_spacy = 'salida.txt'
 
-def analisis(f_in_tika):
+def fileanalisis(f_in_tika):
 
 	# Parseo de archivo con Tika
 	tika.initVM()
@@ -67,7 +67,6 @@ def analisis(f_in_tika):
 		
 	#print("\nCoincidencias",coincidencias)
 
-
 	print ("\nCantidad de tipo de elementos a buscar=",len(resultados),"\n")
 
 	for var in range(len(coincidencias)):
@@ -77,10 +76,7 @@ def analisis(f_in_tika):
 				resultados[index][3]+=1
 
 
-	# Iterate over the matches and print the span text
-	#busqueda = ["PER","ORG","LOC","GPE","LAW"]	
-
-	#busqueda = ["PER","ORG"]
+	# Entidades a buscar con nombre,hash (todos 0), impacto
 
 	busqueda = [
 		("PER",0,3),
@@ -120,5 +116,5 @@ def analisis(f_in_tika):
 	print("\n")
 
 	#Me fijo la cantidad de hallazgos
-	print('Total de matcheos en el documento:', len(coincidencias))
+	print('Total de matcheos en el documento:', len(resultados))
 	return

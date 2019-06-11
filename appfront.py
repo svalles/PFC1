@@ -1,11 +1,11 @@
-#Imporación de las librerias que requiere la aplicación
+#Importación de las librerias que requiere la aplicación
 import os
 import base64
 from flask import Flask , render_template, request,flash, redirect
 from flask_bootstrap import Bootstrap
 import urllib.request
 from werkzeug.utils import secure_filename
-from appback import analisis
+from appback import fileanalisis
 from io import BytesIO
 
 
@@ -13,6 +13,8 @@ from io import BytesIO
 app = Flask(__name__)
 #Creación de clave para el manejo de sesiones en Flask. No es utilizado en este aplicativo pero es necesario para que funcione.
 app.secret_key = 'algun_secreto'
+
+rutaarchivo = ''
 
 # Inicializa el framework Bootstrap
 bootstrap = Bootstrap(app)
@@ -74,8 +76,8 @@ def upload_file():
 		if file and allowed_file(file.filename):
 			filename = secure_filename(file.filename)
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			rutaarchivo = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 			flash('Archivo subido satisfactoriamente')
-			analisis("D:/uploads\escritura.pdf")
 			return redirect('/')
 		else:
 			flash('Allowed file types are pdf')
@@ -83,18 +85,12 @@ def upload_file():
 
 	
 #Pagina para registrar un nuevo servicio y guardar en la base de datos
-@app.route('/nuevo', methods=['GET', 'POST'])
-def nuevo():
-    """Formulario para registro de servicio"""
-    if request.method == 'POST':
-        u = servicio(request.form['nombreservicio'])
-        if u.save():
-            return render_template('/creado.html', servicio=u)
-        else:
-            flash('Este servicio ya se encuentra registrado.', 'danger')
-            return render_template('nuevo.html')
-    else:
-        return render_template('nuevo.html')
+@app.route('/analisis', methods=['GET'])
+def analisis():
+	flash('Analizando Archivo', 'danger')
+	fileanalisis(rutaarchivo)
+	
+	return render_template('analisis.html')
 		
 #Pagina de prueba de código (token) ya generado con anterioridad
 @app.route('/probar', methods=['GET', 'POST'])

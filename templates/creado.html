@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Prueba de TOTP para Maestria en Cyberseguridad{% endblock %}
+{% block pagetitle %}¡Servicio Registrado!{% endblock %}
+{% block content %}
+
+  <p>
+      Tu clave secreta para registrar el servicio es: {{servicio.key|e}}
+  </p>
+  
+  <p>
+      El servicio que resgistraste se llama: {{servicio.nombre|e}}
+  </p>
+  
+  <p>Con la aplicación Google Authenticator puedes escanear este código QR que incluye el nombre del servicio y la clave secreta:</p>
+  <p>
+      <img src="/qr/{{servicio.nombre|e}}" />
+  </p>
+  
+  <p>
+      <a href="/nuevo" class="btn btn-success btn-lg">Registrar otro servicio</a>
+	  <a href="/" class="btn btn-primary btn-lg right-alight">Volver</a>
+  </p>
+{% endblock %}
+
+

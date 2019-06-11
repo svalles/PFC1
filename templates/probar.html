@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Prueba de TOTP para Maestria en Cyberseguridad{% endblock %}
+{% block pagetitle %}Valida tu código de servicio{% endblock %}
+{% block content %}
+  <div class="row">
+      <div class="col-md-12">
+  <form class="form" role="form" method="post">
+  <div class="form-group">
+    <label for="input-servicio">Nombre del servicio</label>
+    <input type="text" name="nombreservicio" class="form-control" id="input-servicio" placeholder="Ingrese el nombre del servicio">
+  </div>
+  <div class="form-group">
+    <label for="input-otp">Código temporario</label>
+    <input type="text" name="otp" class="form-control" id="input-otp" placeholder="Ingrese código temporario">
+  </div>
+  	<a href="/" class="btn btn-primary btn-lg">Volver</a>
+	<button type="submit" class="btn btn-success btn-lg" style="width: 300px;">Probar código</button>
+</div>
+</div>
+</form>
+{% endblock %}
+

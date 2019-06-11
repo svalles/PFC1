@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Proyecto Final de Carrera{% endblock %}
+{% block pagetitle %}Analisis de datos privados en archivos{% endblock %}
+{% block content %}
+  <p>
+      Este es el PFC de la maestria en Ciberseguridad.
+  </p>
+  
+
+ <form method="post" action="/" enctype="multipart/form-data">
+    <dl>
+		<p>
+			<input type="file" name="file" autocomplete="off" required>
+		</p>
+    </dl>
+    <p>
+		<input type="submit" value="Subir archivo">
+	</p>
+</form>
+
+<div class="row">
+      <div class="col-md-4 col-md-offset-8">
+          <a href="/" class="btn btn-success btn-lg" style="width:100%;">Analizar Archivo</a>
+      </div>
+  </div>
+    
+{% endblock %}
+	

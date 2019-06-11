@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Prueba de TOTP para Maestria en Cyberseguridad{% endblock %}
+{% block pagetitle %}Registro de servicio{% endblock %}
+{% block content %}
+  <div class="row">
+      <div class="col-md-12">
+  <form class="form" role="form" method="post">
+  <div class="form-group">
+    <input type="text" name="nombreservicio" class="form-control" id="input-servicio" placeholder="Ingrese el nombre del servicio que desea registrar">
+	<label class="" for="input-servicio">(El servicio puede ser el acceso al correo electrónico, el pago de una tarjeta, una aplicación, etc...)   </label>
+  </div>
+  <div class="form-group">
+          <a href="/" class="btn btn-primary btn-lg">Volver</a>
+		<button type="submit" class="btn btn-success btn-lg" style="width: 300px;">Registrar servicio</button>
+       </div>
+</div>   
+
+    </div>
+    </form>
+{% endblock %}

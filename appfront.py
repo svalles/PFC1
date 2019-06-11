@@ -1,0 +1,136 @@
+#Imporación de las librerias que requiere la aplicación
+import os
+import base64
+from flask import Flask , render_template, request,flash, redirect
+from flask_bootstrap import Bootstrap
+import urllib.request
+from werkzeug.utils import secure_filename
+from appback import analisis
+from io import BytesIO
+
+
+#Crea la instacia para el framework Flask
+app = Flask(__name__)
+#Creación de clave para el manejo de sesiones en Flask. No es utilizado en este aplicativo pero es necesario para que funcione.
+app.secret_key = 'algun_secreto'
+
+# Inicializa el framework Bootstrap
+bootstrap = Bootstrap(app)
+
+#Archivo local donde se guardan los nombres de servicios y sus claves secretas asociadas
+SERVICE_FILE_NAME = 'servicios.dat'
+UPLOAD_FOLDER = 'D:/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+ALLOWED_EXTENSIONS = set(['pdf'])
+
+#Definición de clase para los servicios
+class servicio(object):
+    def __init__(self, nombre, key=None):
+        self.nombre = nombre
+        self.key = key
+        if key is None:
+            self.key = base64.b32encode(os.urandom(10)).decode('utf-8')
+
+    def save(self):
+        if len(self.nombre) < 1:
+            return False
+
+        servicios = pickle.load(open(SERVICE_FILE_NAME, 'rb'))
+        if self.nombre in servicios:
+            return False
+        else:
+            servicios[self.nombre] = self.key
+            pickle.dump(servicios, open(SERVICE_FILE_NAME, 'wb'))
+            return True
+
+
+    @classmethod
+    def get_servicio(cls, nombre):
+        servicios = pickle.load(open(SERVICE_FILE_NAME, 'rb'))
+        if nombre in servicios:
+            return servicio(nombre, servicios[nombre])
+        else:
+            return None
+
+#Routeo de páginas para Flask
+#Pagina de inicio donde presenta las opciones de registrar o probar
+@app.route('/')
+def index():
+	return render_template('index.html')
+	
+
+@app.route('/', methods=['POST'])
+def upload_file():
+	if request.method == 'POST':
+        # check if the post request has the file part
+		if 'file' not in request.files:
+			flash('No file part')
+			return redirect(request.url)
+		file = request.files['file']
+		if file.filename == '':
+			flash('No file selected for uploading')
+			return redirect(request.url)
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			flash('Archivo subido satisfactoriamente')
+			analisis("D:/uploads\escritura.pdf")
+			return redirect('/')
+		else:
+			flash('Allowed file types are pdf')
+			return redirect(request.url)
+
+	
+#Pagina para registrar un nuevo servicio y guardar en la base de datos
+@app.route('/nuevo', methods=['GET', 'POST'])
+def nuevo():
+    """Formulario para registro de servicio"""
+    if request.method == 'POST':
+        u = servicio(request.form['nombreservicio'])
+        if u.save():
+            return render_template('/creado.html', servicio=u)
+        else:
+            flash('Este servicio ya se encuentra registrado.', 'danger')
+            return render_template('nuevo.html')
+    else:
+        return render_template('nuevo.html')
+		
+#Pagina de prueba de código (token) ya generado con anterioridad
+@app.route('/probar', methods=['GET', 'POST'])
+def probar():
+    """Página para probar el TOTP"""
+    if request.method == 'POST':
+        s = servicio.get_servicio(request.form['nombreservicio'])
+        if s is None:
+            flash('Servicio no encontrado', 'danger')
+            return render_template('probar.html')
+        else:
+            otpvalue = request.form['otp']
+            if s.authenticate(otpvalue):
+                flash('¡Código correcto!', 'success')
+                return render_template('/probar.html', servicio=s)
+            else:
+                flash('Código incorrecto', 'danger')
+                return render_template('probar.html')
+    else:
+        return render_template('probar.html')
+		
+@app.route('/qr/<nombreservicio>')
+def qr(nombreservicio):
+    """Genera QR con el servicio y la clave y lo retorna como una imagen de tipo SVG"""
+    s = servicio.get_servicio(nombreservicio)
+    if s is None:
+        return ''
+    url = pyqrcode.create(s.get_totp_uri())
+    stream = BytesIO()
+    url.svg(stream, scale=4)
+    return stream.getvalue(), 200, {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
+
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+	

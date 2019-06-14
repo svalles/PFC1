@@ -6,10 +6,6 @@ from tika import parser
 from tika import detector
 from tika import language
 
-#Archivos de entrada para tika y salida de spacy
-#f_in_tika = 'escritura.pdf'
-#f_out_spacy = 'salida.txt'
-
 def fileanalisis(f_in_tika):
 
 	# Parseo de archivo con Tika

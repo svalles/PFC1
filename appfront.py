@@ -14,13 +14,14 @@ app = Flask(__name__)
 #Creación de clave para el manejo de sesiones en Flask. No es utilizado en este aplicativo pero es necesario para que funcione.
 app.secret_key = 'algun_secreto'
 
-rutaarchivo = ''
+rutaarchivo = 'C:\sarasa'
+holamundo = "Hola mundo"
+nombrearchivo = ''
 
 # Inicializa el framework Bootstrap
 bootstrap = Bootstrap(app)
 
 #Archivo local donde se guardan los nombres de servicios y sus claves secretas asociadas
-SERVICE_FILE_NAME = 'servicios.dat'
 UPLOAD_FOLDER = 'D:/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -64,6 +65,9 @@ def index():
 
 @app.route('/', methods=['POST'])
 def upload_file():
+	global holamundo
+	global rutaarchivo
+	global nombrearchivo
 	if request.method == 'POST':
         # check if the post request has the file part
 		if 'file' not in request.files:
@@ -77,10 +81,12 @@ def upload_file():
 			filename = secure_filename(file.filename)
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			rutaarchivo = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-			flash('Archivo subido satisfactoriamente')
+			nombrearchivo = filename
+			holamundo = "Paso por acá"
+			flash('Archivo subido satisfactoriamente.')
 			return redirect('/')
 		else:
-			flash('Allowed file types are pdf')
+			flash('Solo se permite archivos PDF')
 			return redirect(request.url)
 
 	
@@ -88,6 +94,7 @@ def upload_file():
 @app.route('/analisis', methods=['GET'])
 def analisis():
 	flash('Analizando Archivo', 'danger')
+	print(rutaarchivo)
 	fileanalisis(rutaarchivo)
 	
 	return render_template('analisis.html')
@@ -126,6 +133,12 @@ def qr(nombreservicio):
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'}
+		
+@app.route('/result',methods = ['POST', 'GET'])
+def result():
+   if request.method == 'POST':
+      result = request.form
+      return render_template("result.html",result = result)
 
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

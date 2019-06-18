@@ -5,21 +5,16 @@ from flask_bootstrap import Bootstrap
 import urllib.request
 from werkzeug.utils import secure_filename
 from appback import fileanalisis
-from bokeh.embed import components
-from bokeh.plotting import figure
-from bokeh.resources import INLINE
-from bokeh.util.string import encode_utf8
+from appback import patrones
+from appback import busqueda
+import pygal
+
 #from bokeh.charts import Bar
 
 #Crea la instacia para el framework Flask
 app = Flask(__name__)
 #Creación de clave para el manejo de sesiones en Flask. No es utilizado en este aplicativo pero es necesario para que funcione.
 app.secret_key = 'algun_secreto'
-
-rutaarchivo = ''
-nombrearchivo = ''
-
-
 # Inicializa el framework Bootstrap
 bootstrap = Bootstrap(app)
 
@@ -28,49 +23,26 @@ UPLOAD_FOLDER = 'D:/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['pdf'])
-
-#Definición de clase para los servicios
-class servicio(object):
-    def __init__(self, nombre, key=None):
-        self.nombre = nombre
-        self.key = key
-        if key is None:
-            self.key = base64.b32encode(os.urandom(10)).decode('utf-8')
-
-    def save(self):
-        if len(self.nombre) < 1:
-            return False
-
-        servicios = pickle.load(open(SERVICE_FILE_NAME, 'rb'))
-        if self.nombre in servicios:
-            return False
-        else:
-            servicios[self.nombre] = self.key
-            pickle.dump(servicios, open(SERVICE_FILE_NAME, 'wb'))
-            return True
-
-
-    @classmethod
-    def get_servicio(cls, nombre):
-        servicios = pickle.load(open(SERVICE_FILE_NAME, 'rb'))
-        if nombre in servicios:
-            return servicio(nombre, servicios[nombre])
-        else:
-            return None
+rutaarchivo = ''
+nombrearchivo = ''
+resul = []
+prueba = [5, 1.2, 'DevCode', 5, 2]
 
 #Routeo de páginas para Flask
 #Pagina de inicio donde presenta las opciones de registrar o probar
 @app.route('/')
 def index():
-	return render_template('index.html')
+	expresiones = []
+	entidadesnlp = []
+	for i in range(len(patrones)):
+		expresiones.append(patrones[i][0])
 	
-@app.route("/graph")
-def hello():
-	name = request.args.get("name")
-	if name == None:
-		name = "Edward"
-	return render_template("probar.html", name=name)
-    
+	for i in range(len(busqueda)):
+		entidadesnlp.append(busqueda[i][0])
+		
+	return render_template('index.html',expresiones=expresiones,entidadesnlp=entidadesnlp)
+
+   
 @app.route('/', methods=['POST'])
 def upload_file():
 	global rutaarchivo
@@ -82,7 +54,7 @@ def upload_file():
 			return redirect(request.url)
 		file = request.files['file']
 		if file.filename == '':
-			flash('No file selected for uploading')
+			flash('No se seleccionó ningún archivo')
 			return redirect(request.url)
 		if file and allowed_file(file.filename):
 			filename = secure_filename(file.filename)
@@ -92,82 +64,24 @@ def upload_file():
 			flash('Archivo subido satisfactoriamente.')
 			return redirect('/')
 		else:
-			flash('Solo se permite archivos PDF')
+			flash('Solo se permiten archivos PDF')
 			return redirect(request.url)
 
 	
 #Pagina para registrar un nuevo servicio y guardar en la base de datos
 @app.route('/analisis', methods=['GET'])
 def analisis():
-	flash('Analizando Archivo', 'danger')
-	print(nombrearchivo)
-	fileanalisis(rutaarchivo)
+	#flash('Analizando Archivo', 'danger')
+	global nombrearchivo
+	resul=fileanalisis(rutaarchivo)
 	
-	return render_template('analisis.html')
+	line_chart = pygal.Bar()
+	line_chart.title = 'Analisis de riesgo en archivo'
+	for i in range(len(resul)):
+		line_chart.add(resul[i][0],resul[i][4])
+	graph_data=line_chart.render()
+	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo,graph_data=graph_data)
 		
-#Pagina de prueba de código (token) ya generado con anterioridad
-@app.route('/probar', methods=['GET', 'POST'])
-def probar():
-    """Página para probar el TOTP"""
-    if request.method == 'POST':
-        s = servicio.get_servicio(request.form['nombreservicio'])
-        if s is None:
-            flash('Servicio no encontrado', 'danger')
-            return render_template('probar.html')
-        else:
-            otpvalue = request.form['otp']
-            if s.authenticate(otpvalue):
-                flash('¡Código correcto!', 'success')
-                return render_template('/probar.html', servicio=s)
-            else:
-                flash('Código incorrecto', 'danger')
-                return render_template('probar.html')
-    else:
-        return render_template('probar.html')
-		
-		
-@app.route('/result',methods = ['POST', 'GET'])
-def result():
-   if request.method == 'POST':
-      result = request.form
-      return render_template("result.html",result = result)
-
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/bokeh')
-def bokeh():
-
-    # init a basic bar chart:
-    # http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html#bars
-    fig = figure(plot_width=600, plot_height=600)
-    fig.vbar(
-        x=[1, 2, 3, 4],
-        width=0.5,
-        bottom=0,
-        top=[1.7, 2.2, 4.6, 3.9],
-        color='navy'
-    )
-
-    # grab the static resources
-    js_resources = INLINE.render_js()
-    css_resources = INLINE.render_css()
-
-    # render template
-    script, div = components(fig)
-    html = render_template(
-        'grafico.html',
-        plot_script=script,
-        plot_div=div,
-        js_resources=js_resources,
-        css_resources=css_resources,
-    )
-    return encode_utf8(html)
-	
-@app.route('/hola')
-def hola():
-    return "Hello World!"
-
-@app.route('/<name>')
-def hello_name(name):
-    return "Hello {}!".format(name)

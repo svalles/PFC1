@@ -2,4 +2,4 @@ flask
 flask-bootstrap
 spacy
 tika
-bokeh
+pygal

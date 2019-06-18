@@ -5,21 +5,43 @@
 
  <form method="post" action="/" enctype="multipart/form-data">
     
-		<p>
-			<input type="file" name="file" autocomplete="off" required>
-		</p>
-    
-		<p>
-			<input type="submit" value="Subir archivo">
-		</p>
+		<p></p>
+		<p>	<input type="file" name="file" autocomplete="off" required> </p>
+    	<p> <input type="submit" value="Subir archivo"> </p>
 </form>
-
+		
 <div class="row">
       <div class="col-md-4 col-md-offset-8">
           <a href="/analisis" class="btn btn-success btn-lg" style="width:100%;">Analizar Archivo</a>
 		  <button type="button" disabled="enable" > Analizar Archivo </button>
       </div>
  </div>
-    
+	<p>
+	</p>
+    <p> Ud. analizará el archivo con los siguientes expresiones regulares: </p>
+	<ul>
+		{% for a in expresiones %}
+            
+				<li> {{ a }} </li>
+            
+         {% endfor %}
+	</ul>
+	<p> Ud. analizará el archivo con los siguientes entidades de NLP: </p>
+	<ul>
+		{% for a in entidadesnlp %}
+            
+				<li> {{ a }} </li>
+            
+         {% endfor %}
+	</ul>
+	
+	
+	<p>Are you:</p>
+    <p><input type="radio" name="areyou" value="male"> Male</p>
+    <p><input type="radio" name="areyou" value="female"> Female</p>
+    <p><input type="radio" name="areyou" value="hermaphrodite"> An hermaphrodite</p>
+    <p><input type="radio" name="areyou" value="asexual"> Asexual</p>
+	
+	<img src="https://www.campusciberseguridad.com/images/logos/logo_campus_ciberseguridad_101.png">
 {% endblock %}
 	

@@ -10,11 +10,14 @@ from tika import language
 patrones = [
 		("URL",[{'LIKE_URL': True}],1),
 		("EMAIL",[{'LIKE_EMAIL': True}],2),
-		("IP",[{"TEXT": {"REGEX": "^\d{1,3}[.]\d{1,3}[.]\d{1,3}[.]\d{1,3}$"}}],5),
-		("DNI",[{"TEXT": {"REGEX": "^\d{1,3}[.]\d{1,3}[.]\d{1,3}$"}}],10),
+		("IP",[{"TEXT": {"REGEX": "^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"}}],5),
+		("DNI",[{"TEXT": {"REGEX": "^\d{1,2}[.]\d{3}[.]\d{3}$"}}],20),
 		("SHAREFOLDER",[{"TEXT": {"REGEX": "\\[^\\]+$"}}],10),
-		("TELEFONO",[{"SHAPE": "dddd"},{"ORTH": "-"},{"SHAPE": "dddd"}],3),
+		#("URI",[{"TEXT": {"REGEX": "^([a-zA-Z]\:|\\\\[^\/\\:*?"<>|]+\\[^\/\\:*?"<>|]+)(\\[^\/\\:*?"<>|]+)+(\.[^\/\\:*?"<>|]+)$"}}],10),
+		("TELEFONO",[{"TEXT": {"REGEX": "^(1?)(-| ?)(\()?([0-9]{3})(\)|-| |\)-|\) )?([0-9]{3})(-| )?([0-9]{4}|[0-9]{4})$"}}],10),
 		("CUIL",[{"SHAPE": "dd"},{"ORTH": "-"},{"SHAPE": "dddddddd"},{"ORTH": "-"},{"SHAPE": "d"}],9),
+		#("CUIL",[{"TEXT": {"REGEX": "^\[0-9]{2}-[0-9]{8}-[0-9]$"}}],10),
+		("CREDITCARD",[{"TEXT": {"REGEX": "^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7]\d{13}$"}}],25)
 		]
 
 #Lista de busqueda de NLP: nombre,hash, impacto
@@ -32,7 +35,9 @@ def fileanalisis(f_in_tika):
 	
 	#Tabla donde quedan los resultados finales
 	# Tiene el formato: Nombre,hash,impacto,cant.ocurrencias,impacto
+	
 	resultados=[]
+	resultadodetalle=[]
 	
 	#################################
 	#Parseo de archivo con Tika
@@ -42,7 +47,7 @@ def fileanalisis(f_in_tika):
 
 	#imprimo todo el documento completo
 	#print(parsed["content"])
-
+	
 	#Entrenamiento de 10MB para Spacy el procesador de lenguaje natural NLP
 	nlp = spacy.load("es_core_news_sm")
 	#Entrenamiento de 70 MB
@@ -58,26 +63,29 @@ def fileanalisis(f_in_tika):
 	for name,hash,impacto in busqueda:
 		resultados.append([name,hash,impacto,0,0])
 	
-	print("RESUL",resultados,"\n")
-	print ("\nCantidad de tipo de elementos a buscar=",len(resultados),"\n")
+	print ("\nCantidad de tipos de elementos a buscar=",len(resultados),"\n")
 	
-	###############################
+	#########################################################################
 	#Procesamiento usando Spacy de la cadena de caracteres entregada por Tika
-	#################################
+	#########################################################################
 	doc = nlp(parsed["content"])
 	
 	# Creo el objeto con todos los match 
 	matcher_obj = Matcher(nlp.vocab) 
 	
-	##################################################
-	# Busqueda por expresiones Regulares
-	###################################################
+	#DEBUG Imprimo todos los tokens
+	for token in doc:
+		print(token.text, token.pos_, token.dep_)
+	
+	#####################################################
+	# Busqueda por expresiones Regulares (lista patrones)
+	######################################################
 	#agrego todos los patrones a buscar	al objeto para que Spacy pueda buscar expresiones regulares.
 	for nombre,pat,impacto in patrones:
 		matcher_obj.add(nombre,None,pat)
 		
 	#Me fijo cuantos patrones se cargaron
-	print("Cantidad de entradas con patrones", len(matcher_obj))
+	#print("Cantidad de entradas con patrones", len(matcher_obj))
 
 	#Hago la busqueda
 	#Guardo en la lista "Coincidencias" todos los match de las expresiones regulares, el formato de la lista es hash,start,end (en el documento)
@@ -85,18 +93,23 @@ def fileanalisis(f_in_tika):
 
 	#Saco el listado de matcheos
 	#print("Listado de los hallazgos") por expresiones regulares
-	for match_id, start, end in coincidencias:
-		print('Match encontrado:', doc[start:end].text)
-	
+	#for match_id, start, end in coincidencias:
+	#	print('Match encontrado:', doc[start:end].text)
+		
 	#Recorro la lista de objetos encontrados y matcheo con la tabla de resultados usando el hash como id. Por cada hallazgo aumento en 1 el campor cant_ocurrencias
 	for var in range(len(coincidencias)):
 		hash = coincidencias[var][0]
 		for index in range(len(resultados)):
 			if hash == resultados[index][1]:
+				#print(resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text)
+				resultadodetalle.append([resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text])
 				resultados[index][3]+=1
 
+	#resultadodetalle=sorted(resultadodetalle, key=lambda item: item[0], reverse=False)
+	#print("\nResultados detalle", resultadodetalle)			
+				
 	##################################################
-	# Busqueda por NLP de Spacy, usando name entitys
+	# Busqueda por NLP de Spacy, usando Named Entity Recognition (NER)
 	###################################################
 	# Entidades a buscar con nombre,hash (todos 0), impacto
 
@@ -107,10 +120,15 @@ def fileanalisis(f_in_tika):
 	for ent in doc.ents:
 		for index in range(len(busqueda)):
 			if ent.label_ == busqueda[index][0]:
-				print(ent.text, ent.label_)
 				entidades.append([ent.label_,ent.text])
+				resultadodetalle.append([ent.label_,ent.text])
 	
-
+	#print("\nResultados detalle", resultadodetalle)
+	
+	resultadodetalle=sorted(resultadodetalle, key=lambda item: item[0], reverse=False)
+	for nombre,detalle in resultadodetalle:
+		print(nombre,detalle)
+	
 	#Vuelvo a recorrer todas las entidades econtradas y por cada hallazgo sumo 1 a la tabla de resultados
 	for ente in range(len(entidades)):
 		tipo = entidades[ente][0]
@@ -137,4 +155,4 @@ def fileanalisis(f_in_tika):
 		
 	#Me fijo la cantidad de hallazgos
 	print('Total de matcheos en el documento:', len(resultados))
-	return
+	return resultados

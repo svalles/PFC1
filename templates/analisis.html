@@ -1,23 +1,43 @@
 {% extends "base.html" %}
-{% block title %}Prueba de TOTP para Maestria en Cyberseguridad{% endblock %}
-{% block pagetitle %}Analisis de Archivo{% endblock %}
+{% block title %}Proyecto Final de Carrera{% endblock %}
+{% block pagetitle %}Analisis de datos privados en archivos{% endblock %}
 {% block content %}
   <div class="row">
       <div class="col-md-12">
   <form class="form" role="form" method="post">
-  <div class="form-group">
-    <input type="text" name="nombreservicio" class="form-control" id="input-servicio" placeholder="Ingrese el nombre del servicio que desea registrar">
-	<label class="" for="input-servicio">(El servicio puede ser el acceso al correo electrónico, el pago de una tarjeta, una aplicación, etc...)   </label>
+		<p>
+			<h2> Archivo <strong> {{ nombrearchivo}} </strong> </h2>
+		</p>
   </div>
-  <p>
-      El archivo analizado es: {{rutaarchivo|e}}
-  </p>
-  <div class="form-group">
-          <a href="/" class="btn btn-primary btn-lg">Volver</a>
-		<button type="submit" class="btn btn-success btn-lg" style="width: 300px;">Registrar servicio</button>
-       </div>
-</div>   
+    	
 
-    </div>
-    </form>
+	<div class="form-group">
+          <a href="/" class="btn btn-primary btn-lg">Volver</a>
+		
+	</div>   
+</form>
+
+
+
+<body class="body">
+	  <div class="container" align="left">
+			<embed type="image/svg+xml" src={{graph_data|safe}}>
+	  </div>
+</body>
+
+	<table border = 1>
+				<th> TIPO </th>
+				<th> IMPACTO </th>
+				<th> OCURRENCIAS </th>
+				<th> RIESGO </th>
+         {% for tipo,hash,impacto,cantidad,riesgo in resul %}
+            <tr>
+			   <td> {{ tipo }} </td>
+               <td> {{ impacto }} </td>
+               <td> {{ cantidad }} </td>
+               <th> {{ riesgo }} </th>
+            </tr>
+         {% endfor %}
+	</table>
+
 {% endblock %}

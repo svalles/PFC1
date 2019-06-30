@@ -17,15 +17,13 @@
 	</div>   
 </form>
 
-
-
 <body class="body">
 	  <div class="container" align="left">
 			<embed type="image/svg+xml" src={{graph_data|safe}}>
 	  </div>
 </body>
 
-	<table border = 1>
+	<table border = 4 >
 				<th> TIPO </th>
 				<th> IMPACTO </th>
 				<th> OCURRENCIAS </th>
@@ -40,4 +38,27 @@
          {% endfor %}
 	</table>
 
+	<table border = 1 >
+				<th> TIPO </th>
+				<th> DETALLE </th>
+         {% for tipo,dato in resultadodetalle %}
+            <tr>
+			   <td> {{ tipo }} </td>
+               <td> {{ dato }} </td>
+            </tr>
+         {% endfor %}
+	</table>
+
+	<table border = 1 >
+				<th> TIPO </th>
+				<th> PORCENTAJE </th>
+         {% for tipo,porcentaje in top_porcentajes %}
+            <tr>
+			   <td> {{ tipo }} </td>
+			   <td> {{ porcentaje }} </td>
+            </tr>
+         {% endfor %}
+	</table>
+	
+	
 {% endblock %}

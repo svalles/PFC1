@@ -16,7 +16,6 @@ patrones = [
 		#("URI",[{"TEXT": {"REGEX": "^([a-zA-Z]\:|\\\\[^\/\\:*?"<>|]+\\[^\/\\:*?"<>|]+)(\\[^\/\\:*?"<>|]+)+(\.[^\/\\:*?"<>|]+)$"}}],10),
 		("TELEFONO",[{"TEXT": {"REGEX": "^(1?)(-| ?)(\()?([0-9]{3})(\)|-| |\)-|\) )?([0-9]{3})(-| )?([0-9]{4}|[0-9]{4})$"}}],10),
 		("CUIL",[{"SHAPE": "dd"},{"ORTH": "-"},{"SHAPE": "dddddddd"},{"ORTH": "-"},{"SHAPE": "d"}],9),
-		#("CUIL",[{"TEXT": {"REGEX": "^\[0-9]{2}-[0-9]{8}-[0-9]$"}}],10),
 		("CREDITCARD",[{"TEXT": {"REGEX": "^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7]\d{13}$"}}],25)
 		]
 
@@ -46,7 +45,8 @@ def fileanalisis(f_in_tika):
 	parsed = parser.from_file(f_in_tika)
 
 	#imprimo todo el documento completo
-	#print(parsed["content"])
+	doctika=parsed["content"]
+	#print(doctika)
 	
 	#Entrenamiento de 10MB para Spacy el procesador de lenguaje natural NLP
 	nlp = spacy.load("es_core_news_sm")
@@ -63,7 +63,8 @@ def fileanalisis(f_in_tika):
 	for name,hash,impacto in busqueda:
 		resultados.append([name,hash,impacto,0,0])
 	
-	print ("\nCantidad de tipos de elementos a buscar=",len(resultados),"\n")
+	print("\nNombre de archivo a analizar",f_in_tika)
+	#print ("\nCantidad de tipos de elementos a buscar=",len(resultados),"\n")
 	
 	#########################################################################
 	#Procesamiento usando Spacy de la cadena de caracteres entregada por Tika
@@ -74,8 +75,8 @@ def fileanalisis(f_in_tika):
 	matcher_obj = Matcher(nlp.vocab) 
 	
 	#DEBUG Imprimo todos los tokens
-	for token in doc:
-		print(token.text, token.pos_, token.dep_)
+	#for token in doc:
+	#	print(token.text, token.pos_, token.dep_)
 	
 	#####################################################
 	# Busqueda por expresiones Regulares (lista patrones)
@@ -123,8 +124,8 @@ def fileanalisis(f_in_tika):
 				entidades.append([ent.label_,ent.text])
 				resultadodetalle.append([ent.label_,ent.text])
 	
-	#print("\nResultados detalle", resultadodetalle)
-	
+	#Imprimo los resultados en detalle ordenados por tipo de evento
+	print("\nHallazgos en detalle")
 	resultadodetalle=sorted(resultadodetalle, key=lambda item: item[0], reverse=False)
 	for nombre,detalle in resultadodetalle:
 		print(nombre,detalle)
@@ -155,4 +156,4 @@ def fileanalisis(f_in_tika):
 		
 	#Me fijo la cantidad de hallazgos
 	print('Total de matcheos en el documento:', len(resultados))
-	return resultados
+	return resultados,resultadodetalle,doctika

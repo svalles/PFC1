@@ -7,9 +7,8 @@ from werkzeug.utils import secure_filename
 from appback import fileanalisis
 from appback import patrones
 from appback import busqueda
+from appml import mlanalisis
 import pygal
-
-#from bokeh.charts import Bar
 
 #Crea la instacia para el framework Flask
 app = Flask(__name__)
@@ -73,14 +72,17 @@ def upload_file():
 def analisis():
 	#flash('Analizando Archivo', 'danger')
 	global nombrearchivo
-	resul=fileanalisis(rutaarchivo)
+	resul,resultadodetalle,doc=fileanalisis(rutaarchivo)
+	
+	#doc = [str (item) for item in doc]
+	top_porcentajes = mlanalisis(doc)
 	
 	line_chart = pygal.Bar()
 	line_chart.title = 'Analisis de riesgo en archivo'
 	for i in range(len(resul)):
 		line_chart.add(resul[i][0],resul[i][4])
 	graph_data=line_chart.render()
-	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo,graph_data=graph_data)
+	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo,graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
 		
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

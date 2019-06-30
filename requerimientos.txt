@@ -3,3 +3,4 @@ flask-bootstrap
 spacy
 tika
 pygal
+sklearn

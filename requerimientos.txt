@@ -4,3 +4,4 @@ spacy
 tika
 pygal
 sklearn
+lxml

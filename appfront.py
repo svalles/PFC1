@@ -74,7 +74,7 @@ def analisis():
 	global nombrearchivo
 	resul,resultadodetalle,doc=fileanalisis(rutaarchivo)
 	
-	#doc = [str (item) for item in doc]
+	#Llamo a la funcion que analiza el archivo usando sklearn
 	top_porcentajes = mlanalisis(doc)
 	
 	line_chart = pygal.Bar()
@@ -82,7 +82,20 @@ def analisis():
 	for i in range(len(resul)):
 		line_chart.add(resul[i][0],resul[i][4])
 	graph_data=line_chart.render()
-	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo,graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
+	#graph_data=line_chart.render_table(style=True)
+	
+	lines_chart = pygal.Bar()
+	lines_chart.title = 'Browser usage evolution (in %)'
+	lines_chart.x_labels = map(str, range(2002, 2013))
+	lines_chart.add('Firefox', [None, None, 0, 16.6,   25,   31, 36.4, 45.5, 46.3, 42.8, 37.1])
+	lines_chart.add('Chrome',  [None, None, None, None, None, None,    0,  3.9, 10.8, 23.8, 35.3])
+	lines_chart.add('IE',      [85.8, 84.6, 84.7, 74.5,   66, 58.6, 54.7, 44.8, 36.2, 26.6, 20.1])
+	lines_chart.add('Others',  [14.2, 15.4, 15.3,  8.9,    9, 10.4,  8.9,  5.8,  6.7,  6.8,  7.5])
+	#lines_chart.value_formatter = lambda x: '%.2f%%' % x if x is not None else '0'
+	
+	graph_table=lines_chart.render_table(style=True)
+	
+	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo,graph_table=graph_table, graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
 		
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

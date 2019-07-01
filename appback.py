@@ -1,7 +1,7 @@
 import spacy
 import tika
 from spacy.matcher import Matcher
-from spacy.lang.es import Spanish
+#from spacy.lang.es import Spanish
 from tika import parser
 from tika import detector
 from tika import language
@@ -49,7 +49,8 @@ def fileanalisis(f_in_tika):
 	#print(doctika)
 	
 	#Entrenamiento de 10MB para Spacy el procesador de lenguaje natural NLP
-	nlp = spacy.load("es_core_news_sm")
+	#nlp = spacy.load("es_core_news_sm")
+	nlp = spacy.load('en_core_web_sm')
 	#Entrenamiento de 70 MB
 	#nlp = spacy.load("es_core_news_md")
 	
@@ -106,8 +107,6 @@ def fileanalisis(f_in_tika):
 				resultadodetalle.append([resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text])
 				resultados[index][3]+=1
 
-	#resultadodetalle=sorted(resultadodetalle, key=lambda item: item[0], reverse=False)
-	#print("\nResultados detalle", resultadodetalle)			
 				
 	##################################################
 	# Busqueda por NLP de Spacy, usando Named Entity Recognition (NER)

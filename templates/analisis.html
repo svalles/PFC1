@@ -6,7 +6,7 @@
       <div class="col-md-12">
   <form class="form" role="form" method="post">
 		<p>
-			<h2> Archivo <strong> {{ nombrearchivo}} </strong> </h2>
+			<h2> Archivo: <strong> {{ nombrearchivo}} </strong> </h2>
 		</p>
   </div>
     	
@@ -21,7 +21,13 @@
 	  <div class="container" align="left">
 			<embed type="image/svg+xml" src={{graph_data|safe}}>
 	  </div>
+	  <!-- Don't forget the "|safe"! -->
+	
+		
+	
 </body>
+
+<embed type="image/svg+xml" src= {{ graph_table|safe }} >
 
 	<table border = 4 >
 				<th> TIPO </th>

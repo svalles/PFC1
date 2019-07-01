@@ -31,7 +31,8 @@ def mlanalisis(doc):
 	#print(doc)
 	#input("Press Enter to continue...")
 	#doc=str(doc)
-	doc=doc.encode('unicode-escape')
+	#doc=doc.encode('unicode-escape')
+	doc=[doc]
 	print(doc)
 		
 	print("TRAIN\n")
@@ -45,7 +46,7 @@ def mlanalisis(doc):
 	sample_prediction_proba = trial1.predict_proba(doc)
 	sample_prediction = trial1.predict(doc)
 
-	print("\n Prediction Proba=>",sample_prediction_proba)
+	#print("\n Prediction Proba=>",sample_prediction_proba)
 	print("\n Prediction=>",sample_prediction)
 	print('[%s]:\t\t' % (news.target_names[int(sample_prediction)]))
 
@@ -56,7 +57,7 @@ def mlanalisis(doc):
 
 	porcentajes=sorted(porcentajes, key=lambda item: item[1], reverse=True)
 		
-	print("TABLA DE PORCENTAJES\n")#,porcentajes)
+	print("TABLA DE PORCENTAJES")
 		
 	for porcentaje in range(0,3):
 		print(porcentajes[porcentaje])

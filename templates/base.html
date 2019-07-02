@@ -20,7 +20,7 @@
         <div class="content">
         <div class="jumbotron">
             <h1>{% block pagetitle %}{% endblock %}</h1>
-            {% with messages = get_flashed_messages(with_categories=true) %}
+ <!--           {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {# <ul class="flashes"> #}
                         {% for category, message in messages %}
@@ -30,7 +30,7 @@
                     {# </ul> #}
                 {% endif %}
             {% endwith %}
-            
+ -->           
               {% block content %}
               {% endblock %}
             </div>

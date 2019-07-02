@@ -2,9 +2,19 @@
 {% block title %}Proyecto Final de Carrera{% endblock %}
 {% block pagetitle %}Analisis de datos privados en archivos{% endblock %}
 {% block content %}
+
+<style type="text/css">
+.tftable {color:#333333;width:100%;border-width: 1px;border-color: #729ea5;border-collapse: collapse;}
+.tftable th {background-color:#acc8cc;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;text-align:center;}
+.tftable tr {background-color:#d4e3e5;}
+.tftable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;text-align:center;}
+.tftable tr:hover {background-color:#ffffff;}
+.tftable caption {caption-side:top;font-size:42px;font-weight: bold; text-align: center;}
+</style>
+
   <div class="row">
       <div class="col-md-12">
-  <form class="form" role="form" method="post">
+ <form class="form" role="form" method="post">
 		<p>
 			<h2> Archivo: <strong> {{ nombrearchivo}} </strong> </h2>
 		</p>
@@ -17,19 +27,12 @@
 	</div>   
 </form>
 
-<body class="body">
-	  <div class="container" align="left">
+<div class="container" align="left">
 			<embed type="image/svg+xml" src={{graph_data|safe}}>
-	  </div>
-	  <!-- Don't forget the "|safe"! -->
-	
-		
-	
-</body>
+</div>
 
-<embed type="image/svg+xml" src= {{ graph_table|safe }} >
-
-	<table border = 4 >
+	<table class="tftable" border=1>
+		<caption>Tabla de riesgos</caption>
 				<th> TIPO </th>
 				<th> IMPACTO </th>
 				<th> OCURRENCIAS </th>
@@ -39,12 +42,15 @@
 			   <td> {{ tipo }} </td>
                <td> {{ impacto }} </td>
                <td> {{ cantidad }} </td>
-               <th> {{ riesgo }} </th>
+               <td> {{ riesgo }} </td>
             </tr>
          {% endfor %}
 	</table>
+	
+<br /><br />
 
-	<table border = 1 >
+	<table class="tftable" border="1">
+	<caption>Detalle de hallazgos</caption>
 				<th> TIPO </th>
 				<th> DETALLE </th>
          {% for tipo,dato in resultadodetalle %}
@@ -55,16 +61,17 @@
          {% endfor %}
 	</table>
 
-	<table border = 1 >
+<table class="tftable" border="1">
+	<caption>Categorias del texto</caption>
 				<th> TIPO </th>
 				<th> PORCENTAJE </th>
          {% for tipo,porcentaje in top_porcentajes %}
             <tr>
 			   <td> {{ tipo }} </td>
-			   <td> {{ porcentaje }} </td>
+			   <td> {{ porcentaje }} % </td>
             </tr>
          {% endfor %}
 	</table>
-	
-	
+
+
 {% endblock %}

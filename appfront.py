@@ -12,6 +12,7 @@ import pygal
 
 #Crea la instacia para el framework Flask
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 #Creación de clave para el manejo de sesiones en Flask. No es utilizado en este aplicativo pero es necesario para que funcione.
 app.secret_key = 'algun_secreto'
 # Inicializa el framework Bootstrap
@@ -78,9 +79,12 @@ def analisis():
 	
 	line_chart = pygal.Bar(height=300)
 	line_chart.title = 'Analisis de riesgo en archivo'
+	
 	for i in range(len(resul)):
 		line_chart.add(resul[i][0],resul[i][4])
+	
 	graph_data=line_chart.render()
+	line_chart.render_to_file('../Documents/GitHub/PFC1/static/chart.svg') 
 		
 	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo, graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
 		

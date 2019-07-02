@@ -14,24 +14,23 @@
 
   <div class="row">
       <div class="col-md-12">
- <form class="form" role="form" method="post">
+		<form class="form" role="form" method="post">
 		<p>
 			<h2> Archivo: <strong> {{ nombrearchivo}} </strong> </h2>
 		</p>
-  </div>
-    	
-
-	<div class="form-group">
-          <a href="/" class="btn btn-primary btn-lg">Volver</a>
+		</div>
+		<div class="form-group">
+			<a href="/" class="btn btn-primary btn-lg">Volver</a>
 		
-	</div>   
-</form>
+			</div>   
+		</form>
+	</div>
 
 <div class="container" align="left">
-			<embed type="image/svg+xml" src={{graph_data|safe}}>
+			<embed type="image/svg+xml" src = "/static/chart.svg?dummy=21097" />
 </div>
 
-	<table class="tftable" border=1>
+<table class="tftable" border=1>
 		<caption>Tabla de riesgos</caption>
 				<th> TIPO </th>
 				<th> IMPACTO </th>
@@ -45,11 +44,9 @@
                <td> {{ riesgo }} </td>
             </tr>
          {% endfor %}
-	</table>
+</table>
 	
-<br /><br />
-
-	<table class="tftable" border="1">
+<table class="tftable" border="1">
 	<caption>Detalle de hallazgos</caption>
 				<th> TIPO </th>
 				<th> DETALLE </th>
@@ -72,6 +69,5 @@
             </tr>
          {% endfor %}
 	</table>
-
 
 {% endblock %}

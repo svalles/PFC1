@@ -1,14 +1,15 @@
 #Importación de las librerias que requiere la aplicación
 import os
-from flask import Flask , render_template, request,flash, redirect
+from flask import Flask , render_template, request,flash, redirect, session
 from flask_bootstrap import Bootstrap
 import urllib.request
 from werkzeug.utils import secure_filename
 from appback import fileanalisis
 from appback import patrones
-from appback import busqueda
+from appback import busqueda_pln
 from appml import mlanalisis
 import pygal
+from flask_login import login_required,LoginManager,UserMixin
 
 #Crea la instacia para el framework Flask
 app = Flask(__name__)
@@ -22,10 +23,14 @@ bootstrap = Bootstrap(app)
 UPLOAD_FOLDER = 'D:/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
-ALLOWED_EXTENSIONS = set(['pdf'])
+ALLOWED_EXTENSIONS = set(['pdf','xls','xlsx','doc'])
 rutaarchivo = ''
 nombrearchivo = ''
 resul = []
+
+@app.route('/login')
+def login():
+	return render_template('login.html')
 
 #Routeo de páginas para Flask
 #Pagina de inicio donde presenta las opciones de registrar o probar
@@ -33,11 +38,18 @@ resul = []
 def index():
 	expresiones = []
 	entidadesnlp = []
+	
+#	if 'email' in session:
+#		username = session['email']
+#		return 'Logged in as ' + username + '<br>' + "<b><a href = '/logout'>click here to logout</a></b>"
+#	return "You are not logged in <br><a href = '/login'></b>" + "click here to login</b></a>"
+	
+	
 	for i in range(len(patrones)):
 		expresiones.append(patrones[i][0])
 	
-	for i in range(len(busqueda)):
-		entidadesnlp.append(busqueda[i][0])
+	for i in range(len(busqueda_pln)):
+		entidadesnlp.append(busqueda_pln[i][0])
 		
 	return render_template('index.html',expresiones=expresiones,entidadesnlp=entidadesnlp)
 
@@ -63,7 +75,7 @@ def upload_file():
 			flash('Archivo subido satisfactoriamente.',category='success')
 			return redirect('/')
 		else:
-			flash('Solo se permiten archivos PDF',category='danger')
+			flash('Solo se permiten archivos de tipo: pdf, doc, docx, xls, xlsx',category='danger')
 			return redirect(request.url)
 
 	

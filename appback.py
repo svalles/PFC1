@@ -19,22 +19,20 @@ patrones = [
 		("CREDITCARD",[{"TEXT": {"REGEX": "^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7]\d{13}$"}}],25)
 		]
 
-#Lista de busqueda de NLP: nombre,hash, impacto
-#(el hash es cero porque no es necesario para la busqueda por name entity.
-busqueda = [
-		("PER",0,3),
-		#("ORG",0,2),
+#Lista de busqueda_pln de NLP: nombre,hash, impacto
+#(el hash es cero porque no es necesario para la busqueda_pln por name entity.
+busqueda_pln = [
+		("PER",0,3)
 		]
 
 
 def fileanalisis(f_in_tika):
 
 	global patrones
-	global busqueda
+	global busqueda_pln
 	
-	#Tabla donde quedan los resultados finales
+	# Tabla donde quedan los resultados finales
 	# Tiene el formato: Nombre,hash,impacto,cant.ocurrencias,impacto
-	
 	resultados=[]
 	resultadodetalle=[]
 	
@@ -44,61 +42,49 @@ def fileanalisis(f_in_tika):
 	tika.initVM()
 	parsed = parser.from_file(f_in_tika)
 
-	#imprimo todo el documento completo
+	#Se extrae el contenido del archivo parseado. La otra opción es extraer los metadatos del archivo
 	doctika=parsed["content"]
-	#print(doctika)
-	
-	#Entrenamiento de 10MB para Spacy el procesador de lenguaje natural NLP
+		
+	#Entrenamiento de Spacy el procesador de lenguaje natural NLP
 	#nlp = spacy.load("es_core_news_sm")
 	nlp = spacy.load('en_core_web_sm')
 	#Entrenamiento de 70 MB
 	#nlp = spacy.load("es_core_news_md")
 	
-	# Cargo en la tabla resultados los elementos de "patrones". Convierto los nombres a hash
+	# Carga en la tabla resultados los elementos de "patrones". Convierto los nombres a hash
 	# El impacto queda en cero ya que luego será calculado.
 	for name,patron,impacto in patrones:
 		resultados.append([name,nlp.vocab.strings[name],impacto,0,0])
 	
-	# Cargo en la tabla resultados los elementos de "busqueda"
+	# Carga en la tabla resultados los elementos de "busqueda_pln"
 	# El impacto queda en cero ya que luego será calculado.
-	for name,hash,impacto in busqueda:
+	for name,hash,impacto in busqueda_pln:
 		resultados.append([name,hash,impacto,0,0])
 	
 	print("\nNombre de archivo a analizar",f_in_tika)
-	#print ("\nCantidad de tipos de elementos a buscar=",len(resultados),"\n")
 	
 	#########################################################################
 	#Procesamiento usando Spacy de la cadena de caracteres entregada por Tika
 	#########################################################################
 	doc = nlp(parsed["content"])
 	
-	# Creo el objeto con todos los match 
+	# Crea el objeto con todos los match 
 	matcher_obj = Matcher(nlp.vocab) 
 	
-	#DEBUG Imprimo todos los tokens
-	#for token in doc:
-	#	print(token.text, token.pos_, token.dep_)
-	
-	#####################################################
-	# Busqueda por expresiones Regulares (lista patrones)
-	######################################################
+
+	#########################################################
+	# busqueda_pln por expresiones Regulares (lista patrones)
+	#########################################################
 	#agrego todos los patrones a buscar	al objeto para que Spacy pueda buscar expresiones regulares.
 	for nombre,pat,impacto in patrones:
 		matcher_obj.add(nombre,None,pat)
 		
-	#Me fijo cuantos patrones se cargaron
-	#print("Cantidad de entradas con patrones", len(matcher_obj))
-
-	#Hago la busqueda
-	#Guardo en la lista "Coincidencias" todos los match de las expresiones regulares, el formato de la lista es hash,start,end (en el documento)
+	#Se realiza la busqueda
+	#Guarda en la lista "Coincidencias" todos los match de las expresiones regulares.
+	#El formato de la lista es hash,start,end (en el documento)
 	coincidencias=matcher_obj(doc)
 
-	#Saco el listado de matcheos
-	#print("Listado de los hallazgos") por expresiones regulares
-	#for match_id, start, end in coincidencias:
-	#	print('Match encontrado:', doc[start:end].text)
-		
-	#Recorro la lista de objetos encontrados y matcheo con la tabla de resultados usando el hash como id. Por cada hallazgo aumento en 1 el campor cant_ocurrencias
+	#Recorre la lista de objetos encontrados y matcheo con la tabla de resultados usando el hash como id. Por cada hallazgo aumento en 1 el campor cant_ocurrencias
 	for var in range(len(coincidencias)):
 		hash = coincidencias[var][0]
 		for index in range(len(resultados)):
@@ -109,27 +95,27 @@ def fileanalisis(f_in_tika):
 
 				
 	##################################################
-	# Busqueda por NLP de Spacy, usando Named Entity Recognition (NER)
+	# busqueda_pln por NLP de Spacy, usando Named Entity Recognition (NER)
 	###################################################
 	# Entidades a buscar con nombre,hash (todos 0), impacto
 
 	#Lista de entidades econtradas
 	entidades = []
 	
-	#Imprimo las entidades encontradas según lo especificado en búsqueda y agrego los hallazgos a "Entidades"
+	#Imprime las entidades encontradas según lo especificado en búsqueda y agrego los hallazgos a "Entidades"
 	for ent in doc.ents:
-		for index in range(len(busqueda)):
-			if ent.label_ == busqueda[index][0]:
+		for index in range(len(busqueda_pln)):
+			if ent.label_ == busqueda_pln[index][0]:
 				entidades.append([ent.label_,ent.text])
 				resultadodetalle.append([ent.label_,ent.text])
 	
-	#Imprimo los resultados en detalle ordenados por tipo de evento
+	#Imprime los resultados en detalle ordenados por tipo de evento
 	print("\nHallazgos en detalle")
 	resultadodetalle=sorted(resultadodetalle, key=lambda item: item[0], reverse=False)
 	for nombre,detalle in resultadodetalle:
 		print(nombre,detalle)
 	
-	#Vuelvo a recorrer todas las entidades econtradas y por cada hallazgo sumo 1 a la tabla de resultados
+	#Vuelve a recorrer todas las entidades econtradas y por cada hallazgo suma 1 a la tabla de resultados
 	for ente in range(len(entidades)):
 		tipo = entidades[ente][0]
 		for index in range(len(resultados)):
@@ -138,21 +124,21 @@ def fileanalisis(f_in_tika):
 
 		
 	#################################################################################			
-	#Calculo el IOC por medio de la formula IOC=Impacto * cantidad de ocurrencias			
+	#Calculo el riego por medio de la formula Riesgo=Impacto * cantidad de ocurrencias			
 	#################################################################################
 	for resul in range(len(resultados)):
 		resultados[resul][4]=resultados[resul][2]*resultados[resul][3]
 
-	#Ordeno la lista por la columna peso y la vuelvo a imprimir
+	#Ordena la lista por la columna peso y la vuelve a imprimir
 	resultados=sorted(resultados, key=lambda item: item[4], reverse=True)
 	
-	#Imprimo los resultados finales estadisticos
+	#Imprime los resultados finales estadisticos
 	print("\nTABLA DE RESULTADOS\n")
 	print("\nTIPO - IMPACTO - CANTIDAD - RIESGO\n")
 	for linea in range(len(resultados)):
 		print (resultados[linea][0],resultados[linea][2],resultados[linea][3],resultados[linea][4])
 	print("\n")
 		
-	#Me fijo la cantidad de hallazgos
+	#Chequea la cantidad de hallazgos
 	print('Total de matcheos en el documento:', len(resultados))
 	return resultados,resultadodetalle,doctika

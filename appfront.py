@@ -9,7 +9,6 @@ from appback import patrones
 from appback import busqueda_pln
 from appml import mlanalisis
 import pygal
-from flask_login import login_required,LoginManager,UserMixin
 
 #Crea la instacia para el framework Flask
 app = Flask(__name__)
@@ -23,7 +22,7 @@ bootstrap = Bootstrap(app)
 UPLOAD_FOLDER = 'D:/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
-ALLOWED_EXTENSIONS = set(['pdf','xls','xlsx','doc'])
+ALLOWED_EXTENSIONS = set(['pdf','xls','xlsx','doc','docx'])
 rutaarchivo = ''
 nombrearchivo = ''
 resul = []
@@ -84,7 +83,7 @@ def upload_file():
 def analisis():
 	
 	global nombrearchivo
-	resul,resultadodetalle,doc=fileanalisis(rutaarchivo)
+	riesgoarchivo,resul,resultadodetalle,doc=fileanalisis(rutaarchivo)
 	
 	#Llamo a la funcion que analiza el archivo usando sklearn
 	top_porcentajes = mlanalisis(doc)
@@ -98,7 +97,7 @@ def analisis():
 	graph_data=line_chart.render()
 	line_chart.render_to_file('../Documents/GitHub/PFC1/static/chart.svg') 
 		
-	return render_template('analisis.html',resul=resul,nombrearchivo=nombrearchivo, graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
+	return render_template('analisis.html',riesgoarchivo=riesgoarchivo,resul=resul,nombrearchivo=nombrearchivo, graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
 		
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

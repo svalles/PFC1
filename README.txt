@@ -1,6 +1,10 @@
-﻿Intalación
+﻿Requerimientos
+
+Python3, pip
+
+Intalación
 
 pip install -r requerimientos.txt
 
-python.exe -m spacy download es_core_news_sm
+python.exe -m spacy download en_core_web_sm
 

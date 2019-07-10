@@ -11,18 +11,19 @@ patrones = [
 		("URL",[{'LIKE_URL': True}],1),
 		("EMAIL",[{'LIKE_EMAIL': True}],2),
 		("IP",[{"TEXT": {"REGEX": "^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"}}],5),
-		("DNI",[{"TEXT": {"REGEX": "^\d{1,2}[.]\d{3}[.]\d{3}$"}}],20),
+		("DNI",[{"TEXT": {"REGEX": "^\d{1,2}[.]\d{3}[.]\d{3}$"}}],50),
 		("SHAREFOLDER",[{"TEXT": {"REGEX": "\\[^\\]+$"}}],10),
-		#("URI",[{"TEXT": {"REGEX": "^([a-zA-Z]\:|\\\\[^\/\\:*?"<>|]+\\[^\/\\:*?"<>|]+)(\\[^\/\\:*?"<>|]+)+(\.[^\/\\:*?"<>|]+)$"}}],10),
-		("TELEFONO",[{"TEXT": {"REGEX": "^(1?)(-| ?)(\()?([0-9]{3})(\)|-| |\)-|\) )?([0-9]{3})(-| )?([0-9]{4}|[0-9]{4})$"}}],10),
+		("PHONE",[{"TEXT": {"REGEX": "^(1?)(-| ?)(\()?([0-9]{3})(\)|-| |\)-|\) )?([0-9]{3})(-| )?([0-9]{4}|[0-9]{4})$"}}],10),
 		("CUIL",[{"SHAPE": "dd"},{"ORTH": "-"},{"SHAPE": "dddddddd"},{"ORTH": "-"},{"SHAPE": "d"}],9),
-		("CREDITCARD",[{"TEXT": {"REGEX": "^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7]\d{13}$"}}],25)
+		("CREDITCARD",[{"TEXT": {"REGEX": "^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7]\d{13}$"}}],50)
 		]
 
 #Lista de busqueda_pln de NLP: nombre,hash, impacto
 #(el hash es cero porque no es necesario para la busqueda_pln por name entity.
 busqueda_pln = [
-		("PER",0,3)
+		("PERSON",0,3),
+		("MONEY",0,3),
+		("PRODUCT",0,3)
 		]
 
 
@@ -71,7 +72,6 @@ def fileanalisis(f_in_tika):
 	# Crea el objeto con todos los match 
 	matcher_obj = Matcher(nlp.vocab) 
 	
-
 	#########################################################
 	# busqueda_pln por expresiones Regulares (lista patrones)
 	#########################################################
@@ -84,7 +84,8 @@ def fileanalisis(f_in_tika):
 	#El formato de la lista es hash,start,end (en el documento)
 	coincidencias=matcher_obj(doc)
 
-	#Recorre la lista de objetos encontrados y matcheo con la tabla de resultados usando el hash como id. Por cada hallazgo aumento en 1 el campor cant_ocurrencias
+	#Recorre la lista de objetos encontrados y matcheo con la tabla de resultados usando el hash como id.
+	#Por cada hallazgo aumenta en 1 el campo cant_ocurrencias
 	for var in range(len(coincidencias)):
 		hash = coincidencias[var][0]
 		for index in range(len(resultados)):
@@ -92,12 +93,11 @@ def fileanalisis(f_in_tika):
 				#print(resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text)
 				resultadodetalle.append([resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text])
 				resultados[index][3]+=1
-
 				
 	##################################################
 	# busqueda_pln por NLP de Spacy, usando Named Entity Recognition (NER)
 	###################################################
-	# Entidades a buscar con nombre,hash (todos 0), impacto
+	# Entidades a buscar con nombre,hash (todos en 0), impacto
 
 	#Lista de entidades econtradas
 	entidades = []
@@ -108,6 +108,9 @@ def fileanalisis(f_in_tika):
 			if ent.label_ == busqueda_pln[index][0]:
 				entidades.append([ent.label_,ent.text])
 				resultadodetalle.append([ent.label_,ent.text])
+	
+	print("\nEntidades\n")
+	print(entidades)
 	
 	#Imprime los resultados en detalle ordenados por tipo de evento
 	print("\nHallazgos en detalle")
@@ -132,13 +135,16 @@ def fileanalisis(f_in_tika):
 	#Ordena la lista por la columna peso y la vuelve a imprimir
 	resultados=sorted(resultados, key=lambda item: item[4], reverse=True)
 	
+	riesgoarchivo=0
+	
 	#Imprime los resultados finales estadisticos
 	print("\nTABLA DE RESULTADOS\n")
 	print("\nTIPO - IMPACTO - CANTIDAD - RIESGO\n")
 	for linea in range(len(resultados)):
 		print (resultados[linea][0],resultados[linea][2],resultados[linea][3],resultados[linea][4])
-	print("\n")
+		riesgoarchivo += resultados[linea][4]
+	print("\nRiesgo de archivo:",riesgoarchivo)
 		
 	#Chequea la cantidad de hallazgos
 	print('Total de matcheos en el documento:', len(resultados))
-	return resultados,resultadodetalle,doctika
+	return riesgoarchivo,resultados,resultadodetalle,doctika

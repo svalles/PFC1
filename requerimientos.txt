@@ -5,4 +5,3 @@ tika
 pygal
 sklearn
 lxml
-flask-login

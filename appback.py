@@ -23,18 +23,37 @@ patrones = [
 busqueda_pln = [
 		("PERSON",0,3),
 		("MONEY",0,3),
-		("PRODUCT",0,3)
+		#("PRODUCT",0,3)
 		]
 
+#Función para remover elementos duplicados de una lista
+def removeDuplicates(listofElements):
+    
+    # Crea una lista vacia para guardar elementos únicos
+    uniqueList = []
+    
+    # Itera sobre la lista original por cada elemento
+	# Agrega a la lista destino solo los elementos nuevos 
+    for elem in listofElements:
+        if elem not in uniqueList:
+            uniqueList.append(elem)
+    
+    # Retorna la lista de elementos únicos        
+    return uniqueList
 
 def fileanalisis(f_in_tika):
 
 	global patrones
 	global busqueda_pln
 	
-	# Tabla donde quedan los resultados finales
+	# Tabla resultados
+	# Guarda un resumen de la sumatoria de hallazgos por cada tipo econtrado
 	# Tiene el formato: Nombre,hash,impacto,cant.ocurrencias,impacto
 	resultados=[]
+	
+	# Tabla resultadodetalle
+	# Guarda el detalle de cada item encontrado.
+	# Tiene el formato: Tipo,dato
 	resultadodetalle=[]
 	
 	#################################
@@ -47,10 +66,10 @@ def fileanalisis(f_in_tika):
 	doctika=parsed["content"]
 		
 	#Entrenamiento de Spacy el procesador de lenguaje natural NLP
-	#nlp = spacy.load("es_core_news_sm")
 	nlp = spacy.load('en_core_web_sm')
-	#Entrenamiento de 70 MB
-	#nlp = spacy.load("es_core_news_md")
+	# En el caso de querer probar con idioma español se debe usar la proxima linea.
+	# nlp = spacy.load('es_core_new_sm')
+	
 	
 	# Carga en la tabla resultados los elementos de "patrones". Convierto los nombres a hash
 	# El impacto queda en cero ya que luego será calculado.
@@ -93,10 +112,13 @@ def fileanalisis(f_in_tika):
 				#print(resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text)
 				resultadodetalle.append([resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text])
 				resultados[index][3]+=1
-				
-	##################################################
+	
+	#Quita Duplicados	
+	resultadodetalle=removeDuplicates(resultadodetalle)
+		
+	######################################################################
 	# busqueda_pln por NLP de Spacy, usando Named Entity Recognition (NER)
-	###################################################
+	######################################################################
 	# Entidades a buscar con nombre,hash (todos en 0), impacto
 
 	#Lista de entidades econtradas
@@ -108,6 +130,9 @@ def fileanalisis(f_in_tika):
 			if ent.label_ == busqueda_pln[index][0]:
 				entidades.append([ent.label_,ent.text])
 				resultadodetalle.append([ent.label_,ent.text])
+	
+	#Quita Duplicados
+	entidades=removeDuplicates(entidades)
 	
 	print("\nEntidades\n")
 	print(entidades)
@@ -127,7 +152,7 @@ def fileanalisis(f_in_tika):
 
 		
 	#################################################################################			
-	#Calculo el riego por medio de la formula Riesgo=Impacto * cantidad de ocurrencias			
+	#Calculo el riesgo del archivo por medio de la formula Riesgo=Impacto * cantidad de ocurrencias			
 	#################################################################################
 	for resul in range(len(resultados)):
 		resultados[resul][4]=resultados[resul][2]*resultados[resul][3]

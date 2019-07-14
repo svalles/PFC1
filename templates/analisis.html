@@ -26,6 +26,29 @@
 		</form>
 	</div>
 
+<table class="tftable" border="1">
+	<caption>Riesgo Total de Archivo </caption>
+				<th> NOMBRE DE ARCHIVO </th>
+				<th> RIESGO TOTAL </th>
+        <tr>
+			   <td> {{ nombrearchivo }} </td>
+			   <td> {{ riesgoarchivo }}  </td>
+        </tr>
+         
+</table>	
+	
+<table class="tftable" border="1">
+	<caption>Categorias del texto</caption>
+				<th> TIPO </th>
+				<th> PORCENTAJE </th>
+         {% for tipo,porcentaje in top_porcentajes %}
+            <tr>
+			   <td> {{ tipo }} </td>
+			   <td> {{ porcentaje }} % </td>
+            </tr>
+         {% endfor %}
+	</table>
+	
 <div class="container" align="left">
 			<embed type="image/svg+xml" src = "/static/chart.svg?dummy=21097" />
 </div>
@@ -58,27 +81,6 @@
          {% endfor %}
 	</table>
 
-<table class="tftable" border="1">
-	<caption>Riesgo Total de Archivo </caption>
-				<th> NOMBRE DE ARCHIVO </th>
-				<th> RIESGO TOTAL </th>
-        <tr>
-			   <td> {{ nombrearchivo }} </td>
-			   <td> {{ riesgoarchivo }}  </td>
-        </tr>
-         
-</table>	
-	
-<table class="tftable" border="1">
-	<caption>Categorias del texto</caption>
-				<th> TIPO </th>
-				<th> PORCENTAJE </th>
-         {% for tipo,porcentaje in top_porcentajes %}
-            <tr>
-			   <td> {{ tipo }} </td>
-			   <td> {{ porcentaje }} % </td>
-            </tr>
-         {% endfor %}
-	</table>
+
 
 {% endblock %}

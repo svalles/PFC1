@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Proyecto Final de Carrera{% endblock %}
+{% block title %}Trabajo Final de Maestria{% endblock %}
 {% block pagetitle %}Analisis de datos privados en archivos{% endblock %}
 {% block content %}
 <p>
-	<h3> Paso 1) Elija un archivo PDF para analizar </strong> </h3>
+	<h3> Paso 1) Elija un documento para analizar (pdf, doc, xls) </strong> </h3>
 </p>
  <form method="post" action="/" enctype="multipart/form-data">
     
@@ -38,7 +38,7 @@
             
          {% endfor %}
 	</ul>
-	<p> Ud. analizará el archivo con los siguientes entidades de NLP: </p>
+	<p> Ud. analizará el archivo con los siguientes entidades de PLN: </p>
 	<ul>
 		{% for a in entidadesnlp %}
             

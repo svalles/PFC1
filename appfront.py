@@ -18,9 +18,11 @@ app.secret_key = 'algun_secreto'
 # Inicializa el framework Bootstrap
 bootstrap = Bootstrap(app)
 
-#Archivo local donde se guardan los nombres de servicios y sus claves secretas asociadas
+#Carpeta local donde se suben los archivos
 UPLOAD_FOLDER = 'D:/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+#Definición del tamaño máximo del archivo y extensiones permitidas
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['pdf','xls','xlsx','doc','docx'])
 rutaarchivo = ''
@@ -38,15 +40,11 @@ def index():
 	expresiones = []
 	entidadesnlp = []
 	
-#	if 'email' in session:
-#		username = session['email']
-#		return 'Logged in as ' + username + '<br>' + "<b><a href = '/logout'>click here to logout</a></b>"
-#	return "You are not logged in <br><a href = '/login'></b>" + "click here to login</b></a>"
-	
-	
+#Arma la lista de expresiones regulares para presentar en la home
 	for i in range(len(patrones)):
 		expresiones.append(patrones[i][0])
-	
+
+#Arma la lista de entidades regulares para presentar en la home	
 	for i in range(len(busqueda_pln)):
 		entidadesnlp.append(busqueda_pln[i][0])
 		

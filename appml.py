@@ -23,7 +23,7 @@ def mlanalisis(doc):
 	#Matriz donde se retornan los 3 porcentajes de coincidencias más altos.
 	top_porcentajes = []
 
-	trial1 = Pipeline([
+	trial = Pipeline([
 		('vectorizer', TfidfVectorizer()),
 		('classifier', MultinomialNB()),
 	])
@@ -35,13 +35,13 @@ def mlanalisis(doc):
 	print("TRAIN\n")
 	X_train, X_test, y_train, y_test = train_test_split(news.data, news.target, test_size=0.2)
 	print("FIT\n")
-	trial1.fit(X_train, y_train)
+	trial.fit(X_train, y_train)
 	#Imprime el resultado del entrenamiento para medir el modelo.
-	print("SCORE DEL MODELO: ",trial1.score(X_test, y_test))
+	print("SCORE DEL MODELO: ",trial.score(X_test, y_test))
 	
 	# Se hace la predicción del documento recibido
-	sample_prediction_proba = trial1.predict_proba(doc)
-	sample_prediction = trial1.predict(doc)
+	sample_prediction_proba = trial.predict_proba(doc)
+	sample_prediction = trial.predict(doc)
 	
 	# Se crea la matriz auxiliar de la predicción en base a las categorias.
 	for porcentaje in range(0,19):
@@ -52,7 +52,7 @@ def mlanalisis(doc):
 		
 	print("TABLA DE PORCENTAJES")
 	
-	# Se crea la tabla con solo las 3 categorias con más poercentajes.	
+	# Se crea la tabla con solo las 3 categorias con más porcentajes.	
 	for porcentaje in range(0,3):
 		print(porcentajes[porcentaje])
 		top_porcentajes.append(porcentajes[porcentaje])

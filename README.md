@@ -1,4 +1,6 @@
-﻿## Requerimientos
+﻿# Sistema de prueba para detección de y clasificación de contenido privado
+
+## Requerimientos
 
 python3 y pip
 

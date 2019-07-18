@@ -1,24 +1,24 @@
-﻿# Sistema de prueba para detección de y clasificación de contenido privado
+﻿## Sistema de prueba para detección de y clasificación de contenido privado
 
-## Requerimientos
+### Requerimientos
 
-python3 y pip
+python3
 
-## Instalación
+### Instalación
 
 pip install -r requerimientos.txt
 
 python.exe -m spacy download en_core_web_sm
 
-## Configuración de variable de entorno
+### Configuración de variable de entorno
 
 export FLASK_APP=appfront.py
 
-## Para correr
+### Para correr
 
 python.exe -m flask run
 
-## Luego el navegador debe consultar
+### Luego en el navegador
 
 http://127.0.0.1:5000/
 

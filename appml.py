@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 #Función para entrenar el modelo
 def train(classifier, X, y):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)#, random_state=33)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
     classifier.fit(X_train, y_train)
     print ("Accuracy: %s" % classifier.score(X_test, y_test))
     return classifier

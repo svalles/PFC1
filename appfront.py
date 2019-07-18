@@ -50,7 +50,7 @@ def index():
 		
 	return render_template('index.html',expresiones=expresiones,entidadesnlp=entidadesnlp)
 
-   
+#Función que dispara al generar un POST sobre index.html 
 @app.route('/', methods=['POST'])
 def upload_file():
 	global rutaarchivo
@@ -83,15 +83,18 @@ def analisis():
 	global nombrearchivo
 	riesgoarchivo,resul,resultadodetalle,doc=fileanalisis(rutaarchivo)
 	
-	#Llamo a la funcion que analiza el archivo usando sklearn
+	#Llama a la funcion que analiza el archivo usando sklearn
 	top_porcentajes = mlanalisis(doc)
 	
+	#Crea el grafico de barras
 	line_chart = pygal.Bar(height=300)
 	line_chart.title = 'Analisis de riesgo en archivo'
 	
+	#Añade datos al grafico
 	for i in range(len(resul)):
 		line_chart.add(resul[i][0],resul[i][4])
 	
+	#Genera el render del grafico en un archivo de tipo SVG en el disco
 	graph_data=line_chart.render()
 	line_chart.render_to_file('../Documents/GitHub/PFC1/static/chart.svg') 
 		

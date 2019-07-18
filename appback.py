@@ -1,7 +1,6 @@
 import spacy
 import tika
 from spacy.matcher import Matcher
-#from spacy.lang.es import Spanish
 from tika import parser
 from tika import detector
 from tika import language
@@ -18,7 +17,7 @@ patrones = [
 		("CREDITCARD",[{"TEXT": {"REGEX": "^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7]\d{13}$"}}],50)
 		]
 
-#Lista de busqueda_pln de NLP: nombre,hash, impacto
+#Lista de busqueda_pln de PLN: nombre,hash, impacto
 #(el hash es cero porque no es necesario para la busqueda_pln por name entity.
 busqueda_pln = [
 		("PERSON",0,3),
@@ -62,7 +61,7 @@ def fileanalisis(f_in_tika):
 	tika.initVM()
 	parsed = parser.from_file(f_in_tika)
 
-	#Se extrae el contenido del archivo parseado. La otra opción es extraer los metadatos del archivo
+	#Se extrae el contenido del archivo parseado. La otra opción es extraer los metadatos del archivo.
 	doctika=parsed["content"]
 		
 	#Entrenamiento de Spacy el procesador de lenguaje natural NLP
@@ -109,7 +108,6 @@ def fileanalisis(f_in_tika):
 		hash = coincidencias[var][0]
 		for index in range(len(resultados)):
 			if hash == resultados[index][1]:
-				#print(resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text)
 				resultadodetalle.append([resultados[index][0],doc[coincidencias[var][1]:coincidencias[var][2]].text])
 				resultados[index][3]+=1
 	
@@ -151,9 +149,9 @@ def fileanalisis(f_in_tika):
 				resultados[index][3]+=1
 
 		
-	#################################################################################			
+	###############################################################################################			
 	#Calculo el riesgo del archivo por medio de la formula Riesgo=Impacto * cantidad de ocurrencias			
-	#################################################################################
+	###############################################################################################
 	for resul in range(len(resultados)):
 		resultados[resul][4]=resultados[resul][2]*resultados[resul][3]
 

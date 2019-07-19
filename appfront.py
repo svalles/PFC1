@@ -19,7 +19,7 @@ app.secret_key = 'algun_secreto'
 bootstrap = Bootstrap(app)
 
 #Carpeta local donde se suben los archivos
-UPLOAD_FOLDER = 'D:/uploads'
+UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #Definición del tamaño máximo del archivo y extensiones permitidas
@@ -96,7 +96,7 @@ def analisis():
 	
 	#Genera el render del grafico en un archivo de tipo SVG en el disco
 	graph_data=line_chart.render()
-	line_chart.render_to_file('../Documents/GitHub/PFC1/static/chart.svg') 
+	line_chart.render_to_file('./static/chart.svg') 
 		
 	return render_template('analisis.html',riesgoarchivo=riesgoarchivo,resul=resul,nombrearchivo=nombrearchivo, graph_data=graph_data,resultadodetalle=resultadodetalle,top_porcentajes=top_porcentajes)
 		
